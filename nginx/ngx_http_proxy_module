@@ -1,0 +1,17 @@
+# ngx_http_proxy_module
+
+* proxy_pass
+
+syntax: proxy_pass URL
+context: location,if in location,limit_except
+
+* proxy_pass http://test02.com/uri/;
+
+客户请求的后面的将原样代理给服务器test02
+example:
+server_name www.test01.com
+proxy_pass http://test02.com/uri/;
+客户：www.test01.com/test01.html 将访问http://test02.com/test01.html
+
+* proxy_pass http://test02.com/
+

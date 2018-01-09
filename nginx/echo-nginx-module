@@ -1,0 +1,24 @@
+#echo-nginx-module
+
+作用:
+可以打印变量，可以进行配置值的调试，可以查看配置哪里没有生效
+
+* 下载源码: https://github.com/openresty/echo-nginx-module
+* 解压
+* nginx重新编译： ./configure --prefix=/usr/local/nginx --add-module=包的解压地址
+* make
+* cp objs/nginx /usr/local/nginx_test/sbin/ #拷贝之前可以先把sbin/中原来的nginx 备份下
+* sbin/nginx -V #可以看到安装配置有 --add-module
+
+*测试*
+
+```bash
+location / {
+    set $foo hello;
+    default_type text/html;
+    echo "foo: $foo";
+    }
+
+``` 
+
+访问网页根目录的时候，显示"foo：hello"，#指定default_type 如果不指定可能google会变成下载文件

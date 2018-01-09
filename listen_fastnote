@@ -1,0 +1,10 @@
+#nginx proxy
+
+用户 代理服务器 web服务器
+
+#ssl 密钥
+
+* openssl genrsa -des3 -out tmp.key 2048 #需要设置密码
+* openssl rsa -in tmp.key -out test.key #test.key 无密码
+* openssl req -new -key test.key -out test.csr #生成证书 需要私钥 证书 去生成公钥
+* openssl x509 -req -days 365 -in test.csr -signkey test.key -out test.crt #生成公钥

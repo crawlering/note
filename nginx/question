@@ -1,0 +1,17 @@
+* 网页超时显示提示
+* 用了模块echon-nginx-module,调试，但是gdb还没搞通
+* nginx.conf php解析绑定 php-fpm 的 socket(/tmp/php-fcgi.sock) 需要定义listen.mode=666 定义访问权限，不然会操作被限制
+
+* | 设置proxy的时候curl: (56) Recv failure: Connection reset by peer #代理访问出现此种报错
+	1、修改php-fpm.conf request_terminate_timeout = 0 | 600 无效
+	2、后来修改 server_name www.google.com 和访问的网址一样就可以访问了，但是远程使用curl 或浏览器 还是访问不了，
+           不知道是不是和国家墙有关，在远程主机上直接用curl模拟是可以的
+        3、如果调试的服务器中只有一个虚拟机那么 这个虚拟机就会被认为是默认的虚拟机，所以你的server_name 比如设置成test.com
+           但是你调试的时候curl -x127.0.0.1 www.google.com 他也会返回成功，那是英文虚拟机为默认虚拟机，没有的主机名都会
+           被定位到该主机，所以此时会误认为 server_name 是没用，也可以不设置成原来网站的域名。
+           假如服务器中还有其他默认主机，想像一下server_name 不设成www.google.com ，当使用curl -x127.0.0.1 www.google.com
+           就会被定为到其他默认的虚拟主机的服务器中。
+        所以根据以上分析设置代理proxy的时候：
+        > 虚拟主机名和将访问的真实地址相同对应，
+        > 最后设定一个默认虚拟主机，防止误测，得到错误结果
+* 

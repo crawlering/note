@@ -1,0 +1,136 @@
+在CentOS 7上使用StrongSwan进行IPSec VPN
+发布日期：2015年5月23日，星期六，美国东部时间上午4:52
+CentOS  Linux指南 网络
+StrongSwan是一个基于IPsec的开源VPN解决方案。它支持IKEv1和IKEv2密钥交换协议以及Linux内核的本地NETKEY IPsec协议栈。本教程将向您展示如何使用strongSwan在CentOS 7上设置IPSec VPN服务器。
+
+安装strongSwan
+
+企业Linux的额外软件包（EPEL）存储库中提供了strongSwan软件包。我们应该首先启用EPEL，然后安装strongSwan。(rpm -q epel-release)
+
+yum install http://ftp.nluug.nl/pub/os/Linux/distr/fedora-epel/7/x86_64/e/epel-release-7-9.noarch.rpm
+yum install strongswan openssl
+生成证书
+
+VPN客户端和服务器都需要证书来识别和验证自己。我准备了两个shell脚本来生成和签署证书。首先，我们将这两个脚本下载到文件夹中/etc/strongswan/ipsec.d。
+
+cd /etc/strongswan/ipsec.d
+wget https://raw.githubusercontent.com/michael-loo/strongswan_config/for_vultr/server_key.sh
+chmod a+x server_key.sh
+wget https://raw.githubusercontent.com/michael-loo/strongswan_config/for_vultr/client_key.sh
+chmod a+x client_key.sh
+在这两个.sh文件中，我已经将组织名称设置为VULTR-VPS-CENTOS。如果你想改变它，打开.sh文件，并替换O=VULTR-VPS-CENTOS用O=YOUR_ORGANIZATION_NAME。
+
+接下来，使用server_key.sh您的服务器的IP地址为服务器生成证书颁发机构（CA）密钥和证书。用SERVER_IP您的Vultr VPS的IP地址替换。
+
+./server_key.sh SERVER_IP
+生成客户端密钥，证书和P12文件。在这里，我将为VPN用户“john”创建证书和P12文件。
+
+./client_key.sh john john@gmail.com
+在运行脚本之前将“john”和他的电子邮件替换成你的。
+
+生成客户端和服务器证书后，复制/etc/strongswan/ipsec.d/john.p12并/etc/strongswan/ipsec.d/cacerts/strongswanCert.pem到本地计算机。
+
+配置strongSwan
+
+打开strongSwan IPSec配置文件。
+
+vi /etc/strongswan/ipsec.conf
+用下面的文字替换它的内容。
+
+config setup
+    uniqueids=never
+    charondebug="cfg 2, dmn 2, ike 2, net 0"
+
+conn %default
+    left=%defaultroute
+    leftsubnet=0.0.0.0/0
+    leftcert=vpnHostCert.pem
+    right=%any
+    rightsourceip=172.16.1.100/16
+
+conn CiscoIPSec
+    keyexchange=ikev1
+    fragmentation=yes
+    rightauth=pubkey
+    rightauth2=xauth
+    leftsendcert=always
+    rekey=no
+    auto=add
+
+conn XauthPsk
+    keyexchange=ikev1
+    leftauth=psk
+    rightauth=psk
+    rightauth2=xauth
+    auto=add
+
+conn IpsecIKEv2
+    keyexchange=ikev2
+    leftauth=pubkey
+    rightauth=pubkey
+    leftsendcert=always
+    auto=add
+
+conn IpsecIKEv2-EAP
+    keyexchange=ikev2
+    ike=aes256-sha1-modp1024!
+    rekey=no
+    leftauth=pubkey
+    leftsendcert=always
+    rightauth=eap-mschapv2
+    eap_identity=%any
+    auto=add
+编辑strongSwan配置文件strongswan.conf。
+
+vi /etc/strongswan/strongswan.conf
+删除所有内容，并将其替换为以下内容。
+
+charon {
+    load_modular = yes
+    duplicheck.enable = no
+    compress = yes
+    plugins {
+            include strongswan.d/charon/*.conf
+    }
+    dns1 = 8.8.8.8
+    dns2 = 8.8.4.4
+    nbns1 = 8.8.8.8
+    nbns2 = 8.8.4.4
+}
+
+include strongswan.d/*.conf
+编辑IPsec秘密文件以添加用户和密码。
+
+vi /etc/strongswan/ipsec.secrets
+添加一个用户帐户“约翰”到它。
+
+: RSA vpnHostKey.pem
+: PSK "PSK_KEY"
+john %any : EAP "John's Password"
+john %any : XAUTH "John's Password"
+请注意冒号“：”的两边需要一个空格。
+
+允许IPv4转发
+
+编辑/etc/sysctl.conf以允许在Linux内核中转发。
+
+vi /etc/sysctl.conf
+将以下行添加到文件中。
+
+net.ipv4.ip_forward=1
+保存该文件，然后应用更改。
+
+sysctl -p
+配置防火墙
+
+在服务器上打开您的VPN的防火墙。
+
+firewall-cmd --permanent --add-service="ipsec"
+firewall-cmd --permanent --add-port=4500/udp
+firewall-cmd --permanent --add-masquerade
+firewall-cmd --reload
+启动VPN
+
+systemctl start strongswan
+systemctl enable strongswan
+StrongSwan现在正在您的服务器上运行。安装strongswanCert.pem和.p12证书文件到您的客户端。你现在可以加入你的私人网络。
