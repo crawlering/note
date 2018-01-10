@@ -1,0 +1,66 @@
+# git options
+
+
+##创建本地仓库 repositories
+
+* cd directory;
+* git init #此时生成.git,本地仓库创建完成
+
+## 本地仓库文件操作
+
+### 添加文件，提交文件
+* git add test.txt;  #增加文件到索引表 -A 添加所有改变的文件，包括跟踪或者没跟踪的文件
+                     //#-u 只跟新已经跟踪的文件
+* git commit -m "first commit"; # 把索引表的文件提交到仓库
+
+### 删除文件
+* git rm --cached test.txt #把test.txt文件只从索引表中删除
+* git rm -rf test.txt  #强制递归删除 不加--cached 会删除源文件‘谨慎操作’
+
+## 查看本地库提交到索引表的文件
+
+* git status
+
+## 创建分支
+
+* git branch test01 #创建分支test01
+* git branch  #查看现有分支 以及'*' 标记的为 现在本地所在（切换到的）分支
+  相当于 git branch --list
+* git branch -help #里面含有删除分支，重命名分支
+
+## 切换分支
+
+* git checkout test01 #从其他分支切换到test01分支
+*注:当有内容提交的时候是不能切换的会提示你提交内容然后切换*
+
+## 推送到远程
+
+###配置账户
+
+作者：
+* git config --global user.name "xujb"
+  git config --glabal user.email "123xujiangbo@163.com "
+
+###配置远程版本库
+
+* git remote add urlname01 url #url 为仓库名字 "https://github.com/crawlering/note.git"
+  git remote  #显示本地版本库 对应链接 git remote -v 详细信息
+  git remote -help #有更改链接地址的命令
+  *usrlname01 就是url 的代号 用于后面的推送*
+
+###推送
+
+* git push urlname01 [branchname] #把提交内容 推送到远程github 
+  *注：若是远程还没有该分支，需要git push urlname01 test01 #"test01 为分支名"*
+  *如果已经有分支test01则 git checkout test01 后是不用在 push后面加 分支名的*
+
+
+## 本地回退
+
+* git reset --hard commint_id
+* git reset --hard HARD^ #回退一个版本
+* git log #查看版本信息
+* git reflog #查看历史命令操作 用于回到未来
+
+
+## 远程 合并分支 
