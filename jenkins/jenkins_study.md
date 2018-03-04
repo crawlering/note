@@ -111,7 +111,7 @@
   git remote add origin https://github.com/crawlering/test-java2.git
   //修改一下readme文件
   // 添加 git add -A 修改的提交到库
-  //git status 
+  //git status 查看提交状态
   git push -u origin master
 
   
