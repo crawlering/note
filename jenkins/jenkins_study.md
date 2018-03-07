@@ -114,4 +114,108 @@
   //git status 查看提交状态
   git push -u origin master
 
+
+### 创建一个项目
   
+* java项目是需要编译和打包的
+* 编译和打包用 maven 完成，所以需要安装 maven
+* 下载 测试源码: zrlog源码: 
+  wget https://codeload.github.com/94fzb/zrlog/zip/master 
+  unzip master;mv zrlog test/ //test/ 为git项目的目录
+  git -m commit "javatest01 commit"
+  git add -A 
+  git status
+  git push //上传到git仓库
+
+* 安装tomacat:
+* vim /usr/local/tomcat/conf/tomcat-users.xml 末尾添加:
+  <role rolename="admin"/>
+  <role rolename="admin-gui"/>
+  <role rolename="admin-script"/>
+  <role rolename="manager"/>
+  <role rolename="manager-gui"/>
+  <role rolename="manager-script"/>
+  <role rolename="manager-jmx"/>
+  <role rolename="manager-status"/>
+  <user name="admin" password="admin" roles="admin,manager,admin-gui,admin-script,manager-gui,manager-script,manager-jmx,manager-status" />
+
+* vim webapps/manager/META-INF/context.xml //在allow处填写可以访问的IP
+
+```bash
+<Context antiResourceLocking="false" privileged="true" >
+        <!--  <Valve className="org.apache.catalina.valves.RemoteAddrValve"
+         allow="127\.\d+\.\d+\.\d+|::1|0:0:0:0:0:0:0:1" /> -->
+        <Valve className="org.apache.catalina.valves.RemoteAddrValve"
+            allow="127\.0\.0\.1|192\.168\.31\.95|192\.168\.31\.\d+"/>
+    <Manager sessionAttributeValueClassNameFilter="java\.lang\.(?:Boolean|Integer|Long|Number|String)|org\.apache\.catalina\.filters\.CsrfPreventionFilter\$LruCache(?:\$1)?|java\.util\.(?:Linked)?HashMap"/>
+</Context> 
+//不加"192\.168\.31\.\d+" 后面发布的时候会把报错"The username you provided is not allowed to use the text-based Tomcat Manager (error 403)"
+
+```
+
+* 启动tomcat
+
+
+* 安装 maven: 
+  wget http://mirrors.tuna.tsinghua.edu.cn/apache/maven/maven-3/3.5.2/binaries/apache-maven-3.5.2-bin.tar.gz
+  tar -zxvf apache-maven-3.5.2-bin.tar.gz
+  mv apache-maven-3.5.2-bin.tar.gz /usr/local/
+* web设置jenkins
+  点击全局工具配置-Maven configuration: Default setting privider 选择 setting file in filesystem:
+
+                                                                       file path:/usr/local/apache-maven-3.5.2/conf/setting.xml
+			                Default glogbal settings provider 选择 Global settings file on filesystem
+					file path: /usr/local/apache-maven-3.5.2/conf/setting.xml
+  Maven: maven name: maven-3.5.2
+         MAVEN_HOME: /usr/local/apache-maven-3.5.2
+  SAVE 保存
+
+
+### 添加 maven 项目
+ 
+* 检查是否已经安装 Maven Integration plugin 和 Deploy to container Plugin，若没有安装则需要安装这两个插件
+// 一个是增加maven项目 一个是 Deploy to container Plugin需要通过属于manager-script组的Tomcat管理用户将war包发布到Tomcat服务器上，默认没有这样的用户，需要在TOMCAT_HOME/conf/tomcat-users.xml添加manager-script组和相应的用户，增加如下两行：
+<role rolename="manager-script"/>
+<user username="deploy" password="deploy123456" roles="manager-script"/>
+注：配置好后需要重启Tomcat才能生效
+
+* 重启jenkins服务
+
+* 然后新建任务:java-test 选择 构建一个maven项目
+* 配置
+  源码管理: GIT
+  Repository url:   git@github.com:crawlering/test-java2.git       //git ssh url
+  Credentials add
+  kind 选择 SSH username with pprivate key
+  username: git //因为url可以看出来是git用户
+  Private key: Enter directly
+  key:  //把服务器A发布到git仓库的 私有密钥拷贝至此
+  密码没有设置就不用填
+
+  build: Root pom:zrlog-master/pom.xml //此项是git中的pom.xml文件，
+  Goals and options : clean install -D maven.test.skip=true
+  *前面的步骤设置好后，jenkins 运行后就会去git仓库拉取数据并打包成.war文件*
+  *后面的操作就是和发布有关了*
+  *主要就两个操作，一个是发布有关的一个是邮件通知*
+  构建后操作:
+  
+  增加 Deploy war/ear to container，然后设置
+  WAR/EAR files: **/*.war      //设置war位置，此设置可以上传所有war包，/var/lib/jenkins/workspace/test-java/zrlog-master/target
+                              //一般文件是在上述路径target中**
+  containers: credetials: ADD 选择要发布的tomcat服务器版本然后配置
+  username:admin password:admin //为tomcat登入 manager所需要的密码。上面rolename设置过
+  在直接add
+  credentials:选择刚刚设置的 admin配置
+
+
+  tomcat url: http://192.168.31.20  //服务器IP
+  然后配置 邮件:添加 Editable Email Notification,在project recipient list收件箱列表增加;,123xujiangbo@163.com
+
+  然后保存，进行构建,在控制端进行查看输出，哪里有错误会报出，进行调整
+
+
+**jenkins发布代码过程:首先把代码上传到git仓库，
+  然后通过设置maven项目，可以把git仓库的代码拉到服务器上进行打包war，通过插件"Deploy to container Plugin"
+  上传到客户端的tomcat服务器上(期间有些环境设置例如tomcat登录账户 服务器git登入的密钥 以及java环境的设置等)**
+
+
