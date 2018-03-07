@@ -129,4 +129,73 @@ JVM: Java Virtual Machine
 
 
 
+# ？ mysql优化
 
+* 硬件 软件 语句 架构优化
+
+
+# tomcat 启动卡主
+
+* 开启tomcat后，服务器无响应，和系统很卡，输入不了数据，并且
+  tail -f /usr/local/tomcat/logs/catalina.2018-03-05.log
+
+  ```BASH
+org.apache.catalina.util.SessionIdGeneratorBase.createSecureRandom Creation of SecureRandom instance for session ID generation using [SHA1PRNG] took [192] milliseconds.
+ ```
+
+* 有一条上述的警告信息，百度查看搜索上述信息: 是由于 /dev/random 的读操作被阻塞，有2条解决方案:
+
+1、可以通过配置JRE使用非阻塞的Entropy Source： 
+在catalina.sh中加入这么一行：-Djava.security.egd=file:/dev/./urandom 即可。 
+加入后再启动Tomcat，整个启动耗时下降到Server startup in 20130 ms。 
+这种方案是在修改随机数获取方式，那这里urandom是啥呢？
+
+/dev/random的一个副本是/dev/urandom（“unblocked”，非阻塞的随机数发生器[4]），它会重复使用熵池中的数据以产生伪随机数据。这表示对/dev/urandom的读取操作不会产生阻塞，但其输出的熵可能小于/dev/random的。它可以作为生成较低强度密码的伪随机数生成器，不建议用于生成高强度长期密码。 - - - wikipedia
+
+2、在JVM环境中解决 
+打开$JAVA_PATH/jre/lib/security/java.security这个文件，找到下面的内容：
+
+securerandom.source=file:/dev/random
+
+替换成
+
+securerandom.source=file:/dev/./urandom
+
+* 按照第二种方法进行修改，问题没有解决有出现下面信息
+ "org.apache.catalina.core.AprLifecycleListener.lifecycleEvent The APR based Apache Tomcat Native library which allows optimal performance in production environments was not found on the java.library.path: [/usr/java/packages/lib/amd64:/usr/lib64:/lib64:/lib:/usr/lib]"
+
+* 百度上述信息:
+从操作系统级别来解决异步的IO问题,大幅度的提高性能。
+
+必须要安装apr和native，直接启动就支持apr。
+
+安装apr
+apr需要APR库和OpenSSL相关库。
+
+
+* yum install apr-devel openssl-devel  //这个apr包已经安装了所以直接操作了下面的步骤
+
+ 安装native
+ 进入Tomcat的bin目录，比如：
+
+ /opt/soft/tomcat_8180/bin
+
+ 解压native源码包
+
+ 
+  tar -zxvf tomcat-native.tar.gz  
+  cd tomcat-native-1.1.32-src/jni/native  
+  ./configure--with-apr=/usr/bin/apr-1-config--with-java-home="/opt/soft/jdk1.8.0_60" --with-ssl=yes  
+  make  
+  make install   
+  native 会被安装到/usr/local/apr/lib
+  根据信息"[/usr/java/p    ackages/lib/amd64:/usr/lib64:/lib64:/lib:/usr/lib]"
+ 我们需要把/usr/local/apr/lib/ libtcnative-1.so.0.1.32指向Tomcat可识别路径(链接上述目录)。
+* 然后启动tomcat后就正常了
+
+
+# nginx 虚拟主机日志问题
+
+* 当nginx.conf 文件里加 include vhost/*的时候放在log_format前面 则在虚拟主机定义access_log的时候
+  会找不到在nginx.conf里定义的log类型
+* 解决: include vhost/* 加载定义后面

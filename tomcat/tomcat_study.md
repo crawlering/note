@@ -143,9 +143,11 @@ jdk版本1.6，1.7，1.8
 #### server.xml 部分参数介绍
  
 * docBase，这个参数用来定义网站的文件存放路径，如果不定义，默认是在appBase/ROOT下面，
-  定义了docBase就以该目录为主了，其中appBase和docBase可以一样。
+  定义了docBase就以该目录为主了，其中appBase和docBase可以一样。网页目录在这里设定
+  docBase:默认 是以appBase开始为相对目录的
   *在这一步操作过程中很多同学遇到过访问404的问题，其实就是docBase没有定义对。*
-* appBase为应用存放目录，通常是需要把war包直接放到该目录下面，它会自动解压成一个程序目录
+* appBase 为主机目录，为docBase的相对路径的基本目录，一些基本配置在该目录里比如manage等环境配置文件,
+  相对目录是从安装tomcat的目录开始
 * unpackWARs 设置为true，自动解包WAR文件*放应用war格式文件在webapps中会自动解压，不过需要几秒的时间可以 ls 查看*
 
 Example:

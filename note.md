@@ -138,3 +138,8 @@ Defaults:zabbix !requiretty
 * scp 传输文件基于ssh登录
 * scp src_add des_add //源地址为 远端IP则此命令为 从远程拷贝，目的地址为远端IP 则此命令为推送到远端
 * scp root@192.168.31.20:/usr/src/test.txt /usr/src/local/test.txt //此命令为拷贝
+
+
+# 删除带横线开头的文件
+
+* rm -- -r //删除-r文件
