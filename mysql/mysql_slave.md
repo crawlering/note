@@ -17,7 +17,7 @@
 * mysql 初次使用设置密码 mysqladmin -uroot password '123456'
 * 备份测试数据库 mysql -uroot -h127.0.0.1 mysql -p> /tmp/mysql.sql
                  mysql -uroot -h127.0.0.1 -e "create database xujb" -p
-		 mysql -uroot -h127.0.0.1 xujb < /tmp/mysql.sql
+		 mysql -uroot -h127.0.0.1 xujb *<* /tmp/mysql.sql       
 * 创建主从同步 从服务器用户: grant replication slave on *.* to 'repl'@'192.168.31.21' identified by '123456';
 * 锁表:防止表在配置的时候数据更新造成起始数据不同步的情况； flush tables with read lock;
 * 查看bin-log信息用于 从服务器配置的参数:  show master status;
@@ -30,7 +30,7 @@
 * 安装mysql http://www.cnblogs.com/wanderingfish/p/8041145.html
 * mysql 初次使用设置密码 mysqladmin -uroot password '123456'
 * 创建初始数据库和主服务器相同:mysql -uroot -h127.0.0.1 -e "create database xujb" -p
-                               mysql -uroot -h127.0.0.1 xujb < /tmp/mysql.sql
+                               mysql -uroot -h127.0.0.1 xujb *<* /tmp/mysql.sql
 
 * stop slave; #先停止运行从服务器同步 **这个时候停止，主服务器如果没有停止写入数据(read lock)，在恢复start slave前的时候，主服务器操作的动作都会被同步到从服务器**
 * change master to master_host='192.168.31.20', master_user='repl', master_password='123456', master_log_file='mysql-bin.000013', master_log_pos=2682 # 设置从服务器参数
@@ -85,3 +85,17 @@ my.cnf:
 replicate_ignore_table=xujb.test08 # 禁止xujb.test08 表数据同步 其他的都可以同步
 
 replicate_do_table=xujb.test07 # 至同步 xujb.test07
+
+
+
+
+# 主从复制作用
+
+1 主从复制，是用来建立一个和主数据库完全一样的数据库环境，称为从数据库；主数据库一般是实时的业务数据库，从数据库的作用和使用场合一般有几个：
+  一是作为后备数据库，主数据库服务器故障后，可切换到从数据库继续工作；
+  二是可在从数据库作备份、数据统计等工作，这样不影响主数据库的性能；
+
+2 读写分离，是指读与写分别使用不同的数据库，当然一般是在不同服务器上的；在同一台服务器上的读写环境，估计只是用来测试吧。
+   一般读写的数据库环境配置为，一个写入的数据库，一个或多个读的数据库，各个数据库分别位于不同的服务器上，充分利用服务器性能和数据库性能；当然，其中会涉及到如何保证读写数据库的数据一致，这个就可以利用主从复制技术来完成。
+   一般应用场合为：业务吞吐量很大，读数据库（可简单理解为select语句的 比例和影响）的负载较大；
+   官方的mysql-proxy就是一个实现了读写分离、负载均衡等多个功能的软件
