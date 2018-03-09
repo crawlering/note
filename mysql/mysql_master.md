@@ -204,7 +204,7 @@ vrrp_instance VI_1 {
 #!/bin/bash
 #时间变量，用于记录日志
 d=`date --date today +%Y%m%d_%H:%M:%S`
-#计算nginx进程数量
+#计算mysql进程数量
 n=`ps -C mysqld --no-heading|wc -l`
 # -C 用来指定所执行命令的名称 --no-heading不打印所打印的头部
 #echo "file is running==========" >> /var/log/messages
@@ -218,7 +218,7 @@ function test()
         sleep 2
         if [ $n2 -eq "0"  ]; then
 #                echo "over" >> /tmp/messages
-                echo "$d nginx down,keepalived will stop" >> /tmp/messages
+                echo "$d mysql down,keepalived will stop" >> /tmp/messages
 #                systemctl stop keepalived #这些命令都执行不了，执行没有权限
             return 1
         fi
@@ -282,8 +282,8 @@ vrrp_instance VI_1 {
 ## 测试高可用
 
 * 两台机器都运行keepalived服务 service keepalived start //开启该服务的时候记得把防火墙关了setenforce 0
-* * 先确定好两台机器上nginx差异，比如可以通过curl -I 来查看nginx版本
-* * 测试1：关闭master上的nginx服务
+* * 先确定好两台机器上mysql差异，比如可以通过curl -I 来查看mysql版本
+* * 测试1：关闭master上的mysql服务
 * * 测试2：在master上增加iptabls规则 
 * * iptables -I OUTPUT -p vrrp -j DROP
 * * 测试3：关闭master上的keepalived服务
