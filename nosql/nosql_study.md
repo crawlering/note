@@ -28,7 +28,7 @@ NoSQL 非关系型数据库(NOT ONLY SQL):
 
 
 ## memcached 
-
+ 
 参考文献:
 https://charlee.li/memcached-001.html 001-005
 http://blog.csdn.net/qianshangding0708/article/details/47980697
@@ -100,7 +100,7 @@ memcached 常用参数:
 * -l 设置监听的IP地址可以使用IP:PORT形式指定port，如果没指定可以用-p port 指定端口
 * -M 禁止使用LRU机制算法去删除再用的内存的数据，当内存分配完的时候返回错误
 其他参数 memcached -help
-
+ 
 ## memcached 使用
 
 连接和退出
@@ -188,7 +188,7 @@ END
    注意：导出的数据是带有一个时间戳的，这个时间戳就是该条数据过期的时间点，
    如果当前时间已经超过该时间戳，那么是导入不进去的,
    **而设置过期时间为永久，设定的时间会是之前的时间，所以设置永久的时间是导入不进去的**
-
+ 
 ## php 连接 memcached
 
 * 下载memcache,php7安装官网的memcache的任意版本都会报错"can not find php_smart_string.h"
@@ -202,4 +202,17 @@ END
   搜索关键字extension 在末尾添加extension="memcache.so"
   然后执行 /usr/local/php-fpm/bin/php-fpm -m | grep memcache.so //可以查看到memcache模块被加载
 
+* /usr/local/php-fpm/sbin/php-fpm #运行php-fpm程序 //ps -ef | grep php-fpm
+
+
+* memcache 中存储session (可能和版本有关)
+本实例是在lamp/lnmp环境下实现
+编辑php.ini添加两行 //php5环境下是可以的
+session.save_handler = memcache 
+session.save_path = "tcp://192.168.0.9:11211"  
+或者httpd.conf中对应的虚拟主机中添加
+php_value session.save_handler "memcache" hp_value session.save_path "tcp://192.168.0.9:11211"  
+或者php-fpm.conf对应的pool中添加
+php_value[session.save_handler] = memcache
+php_value[session.save_path] = " tcp://192.168.0.9:11211 "
 

@@ -143,3 +143,81 @@ Defaults:zabbix !requiretty
 # 删除带横线开头的文件
 
 * rm -- -r //删除-r文件
+ 
+# ssh 在免密密钥登入输入命令
+
+* ssh host -tt ifconfig //直接登入主机host 后返回ifconfig命令结果
+
+
+# EOF 用法
+
+*在shell编程中，”EOF“通常与”<<“结合使用，“<<EOF“表示后续的输入作为子命令或子shell的输入，直到遇到”EOF“，再次返回到主调shell，可将其理解为分界符（delimiter）。既然是分界符，那么形式自然不是固定的，这里可以将”EOF“可以进行自定义，但是前后的”EOF“必须成对出现且不能和shell命令冲突。其使用形式如下：*
+*交互式程序(命令)<<EOF*
+command1
+command2
+...
+EOF
+
+**需要注意的是，第一个EOF必须以重定向字符<<开始，第二个EOF必须顶格写，否则会报错**
+
+# expect 
+expect是一个能实现自动和交互式任务的解释器，它也能解释常见的shell语法命令
+安装:yum -y install expect
+* spawn命令：
+  spawn command命令会fork一个子进程去执行command命令，然后在此子进程中执行后面的命令；
+
+在ssh自动登陆脚本中，我们使用 spawn ssh user_name@ip_str，fork一个子进程执行ssh登陆命令；
+
+* expect命令：
+  expect命令是expect解释器的关键命令，它的一般用法为 expect "string",即期望获取到string字符串,可在在string字符串里使用 * 等通配符;
+
+string与命令行返回的信息匹配后，expect会立刻向下执行脚本；
+
+* set timeout命令：
+  set timeout n命令将expect命令的等待超时时间设置为n秒，在n秒内还没有获取到其期待的命令，expect 为false,脚本会继续向下执行；
+
+* send命令：
+  send命令的一般用法为 send "string",它们会我们平常输入命令一样向命令行输入一条信息，当然不要忘了在string后面添加上 \r 表示输入回车；
+
+* interact命令：
+  interact命令很简单，执行到此命令时，脚本fork的子进程会将操作权交给用户，允许用户与当前shell进行交互；退出
+  expect环境
+* ssh 自动登入脚本事例:
+
+```BASH
+#!/usr/bin/bash
+
+if [ "$1" == "-help" -o "$2" == "-help" ]
+then 
+    echo "-help: Usage"
+    echo "script host command"
+    exit 0
+fi
+#echo "ok"
+#echo "$2"
+if [ -n "$2" ]
+then
+
+    echo $1 $2
+    /usr/bin/expect <<EOF 
+    set timeout 3
+    spawn ssh root@$1
+    expect "*password:"
+    send "1QAZ2wsx,.\r"
+    expect "*#"
+    send "$2 \r"
+    expect "*#"
+    interact
+    expect eof
+EOF
+    
+
+
+else
+ 
+    echo "请输入正确的host 和 需要执行的命令！"
+    echo "请输入-help 查看详细用法"
+
+fi
+
+```

@@ -101,7 +101,7 @@ server
 
 ```bash
 [www]
-listen = /tmp/www.sock
+listen = /tmp/www.sock //NGINX 中 php解析项有定义 sock，就指定了那个php pool去解析该网站
 listen.mode=666
 user = php-fpm
 group = php-fpm
@@ -143,7 +143,7 @@ nginx 绑定的位置就是在进行PHP解析的地方
 location ~ \.php$
         {
             include fastcgi_params;
-            fastcgi_pass unix:/tmp/php-fcgi.sock; #或者xujb.sock
+            fastcgi_pass unix:/tmp/php-fcgi.sock; #或者xujb.sock (xujb pool解析)
             fastcgi_index index.php;
             fastcgi_param SCRIPT_FILENAME /usr/local/nginx/html$fastcgi_script_name;
         }
