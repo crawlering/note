@@ -120,8 +120,43 @@ Defaults:zabbix !requiretty
 
 # vim markdown
 
+* zO
 * zo 展开代码折叠
-* zc 折叠
+* zc 折叠最外层
+* zC 对范围内的所有嵌套进行折叠
+
+
+* zc 折叠，只折叠最外层的折叠
+* zC 对所在范围内所有嵌套的折叠点进行折叠，包括嵌套的所有折叠.
+* zo 展开折叠，只展开最外层的折叠.
+* zO 对所在范围内所有嵌套的折叠点展开，包括嵌套折叠.
+* [z 到当前打开的折叠的开始处。
+* ]z 到当前打开的折叠的末尾处。
+* zj 向下移动。到达下一个折叠的开始处。关闭的折叠也被计入。
+* zk 向上移动到前一折叠的结束处。关闭的折叠也被
+* zd 删除 (delete) 在光标下的折叠。仅当 ‘foldmethod’ 设为 “manual” 或 “marker” 时有效。
+* zD 循环删除 (Delete) 光标下的折叠，即嵌套删除折叠。
+* 仅当 ‘foldmethod’ 设为 “manual” 或 “marker” 时有效。
+* zE 除去 (Eliminate) 窗口里“所有”的折叠。
+* 仅当 ‘foldmethod’ 设为 “manual” 或 “marker” 时有效。
+* zfap 将光标移到段落内，然后按zfap，就可以自动对整个段落添加折叠标签
+*
+* 假定你已经创建了若干折叠，而现在需要阅览全部文本。你可以移到每个折叠处，并键入”zo”。若要做得更快，可以用这个命令:zr
+* zm
+* 这将折叠更多 (M-ore)。你可以重复 “zr” 和 “zm” 来打开和关闭若干层嵌套的折叠，不然得一个一个的用zc来折叠.
+*
+* 如果你有一个嵌套了好几层深的折叠，你可以用这个命令把它们全部打开:
+*
+* zR
+*
+* 这将减少折叠直至一个也不剩。而用下面这个命令你可以关闭所有的折叠:
+  zM
+
+* 这将增加折叠，直至所有的折叠都关闭了。
+
+* 你可以用 |zn| 命令快速禁止折叠功能。然后 |zN| 恢复原来的折叠。|zi| 切换于两者
+   之间。
+
 
 # mount 挂载 windows
 
@@ -159,9 +194,10 @@ command2
 EOF
 
 **需要注意的是，第一个EOF必须以重定向字符<<开始，第二个EOF必须顶格写，否则会报错**
+ 
+# expect
 
-# expect 
-expect是一个能实现自动和交互式任务的解释器，它也能解释常见的shell语法命令
+* expect是一个能实现自动和交互式任务的解释器，它也能解释常见的shell语法命令
 安装:yum -y install expect
 * spawn命令：
   spawn command命令会fork一个子进程去执行command命令，然后在此子进程中执行后面的命令；
@@ -184,40 +220,120 @@ string与命令行返回的信息匹配后，expect会立刻向下执行脚本�
   expect环境
 * ssh 自动登入脚本事例:
 
-```BASH
-#!/usr/bin/bash
-
-if [ "$1" == "-help" -o "$2" == "-help" ]
-then 
-    echo "-help: Usage"
-    echo "script host command"
-    exit 0
-fi
-#echo "ok"
-#echo "$2"
-if [ -n "$2" ]
-then
-
-    echo $1 $2
-    /usr/bin/expect <<EOF 
-    set timeout 3
-    spawn ssh root@$1
-    expect "*password:"
-    send "1QAZ2wsx,.\r"
-    expect "*#"
-    send "$2 \r"
-    expect "*#"
-    interact
-    expect eof
-EOF
+    ```BASH
+    #!/usr/bin/bash
     
+    if [ "$1" == "-help" -o "$2" == "-help" ]
+    then 
+        echo "-help: Usage"
+        echo "script host command"
+        exit 0
+    fi
+    #echo "ok"
+    #echo "$2"
+    if [ -n "$2" ]
+    then
+    
+        echo $1 $2
+        /usr/bin/expect <<EOF 
+        set timeout 3
+        spawn ssh root@$1
+        expect "*password:"
+        send "1QAZ2wsx,.\r"
+        expect "*#"
+        send "$2 \r"
+        expect "*#"
+        interact
+        expect eof
+    EOF
+        
+    
+    
+    else
+     
+        echo "请输入正确的host 和 需要执行的命令！"
+        echo "请输入-help 查看详细用法"
+    
+    fi
+    
+    ```
+
+* expect
 
 
-else
+
+
+# vim 匹配删除行
+
+* :g/^#/d  删除#号开始的行
+* :g/^$/d  删除空行
+
+
+
+
+# vim 目录树 nerd tree
+
+* curl  -o nerdtree.zip https://www.vim.org/scripts/download_script.php?src_id=23731
+* unzip nerdtree.zip -d ~/.vim/
+
+    安装好后，命令行中输入vim，打开vim后，在vim中输入:NERDTree，你就可以看到NERDTree的效果了。
+     为了方便起见，我们设置一下快捷键，在~/.vimrc 文件中添加下面内容
+
+* " NERDTree
+* map <F10> :NERDTreeToggle<CR>
+
+ 插件快捷键
+       【普通模式（normal mode）】
+       ▶ 文件节点映射（File node mappings）
+       • 左键双击 or 回车 or o : 打开指定文件。
+       • go                              : 打开指定文件，将光标留在目录树中。
+       • t                                 : 在新标签中打开文件。
+       • T                                : 在新标签中打开文件，保持鼠标焦点留在当前标签。
+       • 鼠标中键 or i              : 在水平分屏窗口中打开指定文件。
+       • gi                               : 在水平分屏窗口中打开指定文件，将光标留在目录树中。
+       • s                                : 在垂直分屏窗口中打开指定文件。
+       • gs                              : 在垂直分屏窗口中打开指定文件，将光标留在目录树中。
  
-    echo "请输入正确的host 和 需要执行的命令！"
-    echo "请输入-help 查看详细用法"
+       ▶ 目录节点映射（Directory node mappings）
+       • 左键双击 or 回车 or o : 打开指定目录。
+       • O                                : 递归打开指定目录。
+       • x                                 : 关闭当前节点的父节点。
+       • X                                : 递归关闭当前节点的所有子节点。
+       • 鼠标中键 or e              : 浏览指定目录。
+ 
+       ▶ 书签表映射（Bookmark table mappings）
+       • 左键双击 or 回车 or o : 打开指定书签。
+       • t                                 : 在新标签中打开书签。
+       • T                                : 在新标签中打开书签，保持鼠标焦点留在当前标签。
+       • D                                : 删除指定书签。
+       ▶ 树形导航映射（Tree navigation mappings）
+       • p                                : 跳转到根节点。
+       • P                                : 跳转到当前节点的父节点。
+       • K                                : 跳转到当前目录的第一个子节点。
+       • J                                 : 跳转到当前目录的最后一个子节点。
+       • Ctrl + K                     : 跳转到当前节点的上一个兄弟节点。
+       • Ctrl + J                      : 跳转到当前节点的下一个兄弟节点。
+       ▶ 文件系统映射（Filesystem mappings）
+       • C                                : 将当前选择的目录做为树形目录的根节点，即切换当前根目录节点为选择的目录节点。
+       • u                                : 将当前视图中的树根节点上移一层目录，即拿当前树根目录的父目录做为新的根目录。
+       • U                                : 将当前视图中的树根节点上移一层目录，即拿当前树根目录的父目录做为新的根目录，并且保持原树目录状态不变。
+       • r                                 : 递归刷新当前目录。
+       • R                                : 递归刷新当前节点。
+       • m                               :  显示菜单。
+       • cd                              : 将CWD切换到当前选择节点的目录。
+       ▶ 树形过滤器映射（Tree filtering mappings）
+       • I                                 : 是否显示隐藏文件开关。
+       • f                                 : 是否启用文件过滤器开关。
+       • F                                 : 是否显示文件开关。
+       • B                                : 是否显示书签表的开关。
+       ▶ 树形过滤器映射（Tree filtering mappings）
+       • q                                 : 关闭树形目录树窗口。
+       • A                                 : 缩放树形目录树窗口。
+       • ?                                  : 显示帮助文档的开关。
+• 常用配置选项
+" 打开鼠标更改窗口宽度功能
+set mouse=a
 
-fi
 
-```
+
+
