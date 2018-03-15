@@ -19,7 +19,7 @@
   网页打开PHP dubug日志: 	/usr/local/php-fpm/etc/php.ini 中打开 "display_errors = on"
   
 
-* php-fpm 慢执行日志 在虚拟主机中定义:request_slowlog_timeout = 1
+* php-fpm 慢执行日志 在虚拟主机中定义 /usr/local/php-fpm/etc/php-fpm.d/www 添加:request_slowlog_timeout = 1
   slowlog = /usr/local/php-fpm/var/log/www-slow.log
 
 
