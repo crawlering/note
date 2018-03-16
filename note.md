@@ -351,3 +351,22 @@ readonly PROMPT_COMMAND
 ```
 
 * readonly PROMPT_COMMAND:把变量变成只读变量，防止用户 在命令端对PROMPT_COMMAND赋值，导致命令保存失效
+
+
+# xshell 和linux 使用
+
+* xshell 属性中设置 alt 键和 linux alt键冲突，键盘 元meta处设置
+* alt 1 2 3 进行切换窗口
+* ctrl + tab 正向切换
+* shift + tab 跳到最近一次 所在窗口
+
+# linux 快捷键使用记录
+
+* ctrl + f 向前移动一个字符  ctrl + b 向后移动一个字符
+* alt + f 向前移动一个单词   alt + b   向后移动一个单词
+
+
+# google 浏览器切换
+
+* ctrl  + tab 向右切换  ctrl shift + tab 向左切换
+* ctrl + 数字[1,2,3] 切换第一个标签 第二个标签...
