@@ -55,6 +55,7 @@ mysql调优： http://www.aminglinux.com/bbs/thread-5758-1-1.html
 *  mysql -uroot
 > use mysql;
 > update user set password=password('123456') where user='root';
+> 重启服务后，进入mysql:set password=password("12345678"); 再次设置一次密码
 
 ## 连接 mysql
 

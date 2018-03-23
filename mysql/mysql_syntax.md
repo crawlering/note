@@ -157,7 +157,7 @@ InnoDB:
 关键字：PRIMARY KEY 
 
 * alter table stu add PRIMARY KEY(id); #增加主键 定义的时候也可以定义
-* alter table stu drop PRIMARY KEY; #删除主键
+* alter table stu drop PRIMARY KEY; #删除主键 当有auto_increment的时候需要先把auto_increment 使用modify设置没
 
 外键:
 * 两个表都是InnoDB 表
@@ -168,7 +168,7 @@ InnoDB:
 关键字: FOREIGN KEY
 
 * alter table score ADD CONSTRAINT score_stu FOREIGN KEY(name) REFERENCE stu(name); #CONSTRAINT 定义外键别名 stu为主表
-   'name' 是 score 的主键，不一定是 stu的主键
+   'name' 是 stu 的主键，不一定是 score的主键,本表创造外键连接其他表的主键
 * alter table score DROP foreign key score_stu; #删除外键 后面写别名
 
 外键包括4中方式:
@@ -188,6 +188,9 @@ ON DELETE 和 ON UPDATE 定义规则:
     -> `name` varchar(40) not null,
     -> PRIMARY KEY(name),
     -> CONSTRAINT `for_key` FOREIGN KEY(name) REFERENCES stu(name));
+
+* RESTRICT关联方式 表存在外键后，(存在外键的表成为子表)，子表添加插入数据外键的字段必须在主表存在
+  主表添加数据无影响，主表删除数据，需要先删除对应外键表的相应数据，才可以删除主表数据，子表删除数据无影响。
 
 索引:
 * 加快访问速度

@@ -370,3 +370,70 @@ readonly PROMPT_COMMAND
 
 * ctrl  + tab 向右切换  ctrl shift + tab 向左切换
 * ctrl + 数字[1,2,3] 切换第一个标签 第二个标签...
+
+# 编译软件出现内存不够用的情况
+
+没有设置swap或者内存太小引起
+关键字:“virtual memory exhausted: Cannot allocate memory“
+
+* mkdir /opt/images
+* dd if=/dev/zero of=/opt/images/swap bs=1024 count=2048000 //2G文件
+* mkswap /opt/images/swap 
+* swapon /opt/images/swap //挂载swap
+* free -m   //查看swap
+* swapoff swap //关闭swap挂载
+* rm -f /opt/images/swap  //删除swap占用的空间
+
+# 中断信号的区别
+
+* HUP INT KILL TERM TSTP
+* kill -HUP `cat xx.pid` //重新加载配置文件，在分隔日志的时候用的到
+* kill -INT `cat xx.pid` // 快速关闭
+* kill -TERM `cat xx.pid` //快速关闭
+* kill -QUIT `cat xx.pid` //从容关闭
+
+
+# 标准错误输入输出
+
+* echo test 1>/dev/null 2&>1 //把正确 错误都传到null里不显示
+
+# mysql 时区设置
+
+* mysql时区有 系统时区 时区 日志时区
+  SHOW VARIABLES LIKE “%time_zone”; 可以查看到system_time_zone time_zone  为CST 为中国标准时间 东8区(+8:00)
+  SHOW VARIABLES LIKE "log_timestamps"; 为UTC
+  log_timestamps 默认为UTC，并且0 为 UTC ，1为system 及系统时区
+  修改时区: SET GLOBAL time_zone=“+8:00”；//如果正常可以不修改 
+            SET GLOBAL log_timestamps=1;
+  在/etc/my.cnf配置文件修改: default-time_zone = '+8:00'; log_timestamps=1;
+  然后查看日志 可以看到和系统时区一致
+
+
+# wtmp btmp
+
+* last 解析出/var/log/wtmp 的内容，此内容记载 用户登入成功的信息
+* lastb 解析的是/var/log/btmp的内容，此内容记载 用户登入失败的信息
+
+
+# ctime mtime atime
+
+* ctime: change time : 修改文件内容属性会改变文件的ctime  属性:chmod。  ls -lc
+* mtime: modify time : 修改文件内容 mtime会改变                         ls -l
+* atime: access time: 访问会改变访问时间 atime                          ls -lu
+
+
+# cp 覆盖关闭提示
+
+* cp -f 取消提示，但是系统一般有 设置alias: alias cp='cp -i',所以cp -f file1 file2 有覆盖提示
+* \cp -f FILE1 FILE2; 就可以暂时取消alias 执行命令
+
+# mysql 启动失败
+
+* “our database may be corrupt or you may have copied the InnoDB tablespace but    not the InnoDB log files.”
+* /etc/my.cnf 中添加 innodb_force_recovery=4 从 1-6尝试，启动成功后，注释掉，就能启动成功
+  1(SRV_FORCE_IGNORE_CORRUPT):忽略检查到的corrupt页。 
+  2(SRV_FORCE_NO_BACKGROUND):阻止主线程的运行，如主线程需要执行full purge操作，会导致crash。 
+  3(SRV_FORCE_NO_TRX_UNDO):不执行事务回滚操作。 
+  4(SRV_FORCE_NO_IBUF_MERGE):不执行插入缓冲的合并操作。 
+  5(SRV_FORCE_NO_UNDO_LOG_SCAN):不查看重做日志，InnoDB存储引擎会将未提交的事务视为已提交。 
+  6(SRV_FORCE_NO_LOG_REDO):不执行前滚的操作。 

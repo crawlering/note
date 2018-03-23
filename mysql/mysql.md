@@ -1,5 +1,11 @@
 # mysql
 
+## mysql 初始化数据库
+
+* /usr/local/mysql/bin/mysqld --initialize-insecure --user=mysql --datadir=/data/mysql
+  //--initialize-insecure 和--initialize 区别在于后者自动生成随机密码，不可以使用mysqladmin设置初始密码
+  然后启动 mysqld服务，执行mysqladmin 设置密码
+
 ##mysql 更改密码
 
 * mysqladmin 执行出现 mysql.sock找不到则 增加
@@ -14,9 +20,10 @@
 * 忘记密码修改配置文件进行密码修改: [mysqld]中增加 skip-grant #意思是忽略授权
 * use mysql
   update user set password=password("123456") where user="root";
+* flush privileges;
 
 ##mysql 错误
-
+ 
 * mysql -uroot #登入出现错误
 
     ```BASH
@@ -48,3 +55,11 @@
     GRANT ALL PRIVILEGES ON *.* TO test@"%" IDENTIFIED BY 'test' WITH GRANT OPTION; #带"%"为开通远程访问
    2、可能还需要开通 iptables 3306
 
+
+## mysql 表结构认识
+
+mysql table: 存在两个文件 比如test1表: test1.frm test1.ibd 
+test1.frm: 为数据结构
+test1.ibd: 为数据和索引信息
+* alter table test1 discard tablespace; 丢弃test1.ibd 
+* alter table test1 import tablespace; 导入test1.ibd //在备份恢复的时候可能会用到
