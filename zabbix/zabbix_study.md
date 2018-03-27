@@ -205,7 +205,8 @@ def main():
     subject=sys.argv[2]
     content=sys.argv[3]
 ##定义QQ邮箱的账号和密码，你需要修改成你自己的账号和密码（请不要把真实的用户名和密码放到网上公开，否则你会死的很惨）
-    sendqqmail('123xujiangbo@163.com','bo5722436','123xujiangbo@163.com',to,subject,content)
+    sendqqmail('123xujiangbo@163.com','123456','123xujiangbo@163.com',to,subject,content)
+    sendqqmail('123xujiangbo@163.com','123456','123xujiangbo@163.com',to,subject,content)
 if __name__ == "__main__":
     main()
     

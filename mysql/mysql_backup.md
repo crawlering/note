@@ -203,12 +203,38 @@ innobackupex --user=root --password=123456 --host=127.0.0.1 --incremental /data/
 * innobackupex --apply-log /data/backup/base //合并回滚
 * innobackupex --copy-back /data/backup/base //恢复 恢复之前需要删除datadir,恢复后需要chown /data/mysql
 
-
+*--rsync 可以加速传输 不可以和--stream 一起使用* 	
 流备份:
 
 Incremental Streaming Backups using xbstream and tar:
 
+* innobackupex --user=root --password=123456 --host=127.0.0.1 --incremental  --incremental-lsn=2671732  --stream=xbstream ./ | ssh root@207.246.96.252 "cat - | xbstream -x -C /data/backup"
+* innobackupex --user=root --password=123456 --host=127.0.0.1 --incremental --incremental-lsn=2671732  --stream=xbstream ./  |  ssh root@207.246.96.252 "cat -> /data/backup/inc1.xbstream" //不解压
+* innobackupex --user=root --password=123456 --host=127.0.0.1 --incremental --incremental-lsn=2671732  --stream=xbstream --compress ./  |  ssh root@207.246.96.252 "cat -> /data/backup/inc1.xbstream"
+  // 压缩 stream传输 
 
+使用--extra-lsndir 和 show engine innodb status\G" | grep "Log sequence number" 数据对比进行脚本自动定时增量备份
+因为该备份是根据lsn进行备份(Log sequence number)
+
+```BASH
+#!/bin/bash
+data_time=`date +"%F_%T"`
+extra_dir=/data/backup/extra
+lsn_start=`mysql -uroot -p123456 -e "show engine innodb status\G" | grep "Log sequence number"| cut -d" " -f4`
+lsn_now=`cat extra/xtrabackup_checkpoints | grep	 last_lsn | cut -d= -f2`
+echo "$lsn_start: $lsn_now"
+if [ $lsn_start -gt $lsn_now ]
+then
+
+   innobackupex --user=root --password=123456 --host=127.0.0.1 --incremental --extra-lsndir=${extra_dir}  --incremental-basedir=${extra_dir}  --stream=xbstream ./  |  ssh root@207.246.96.252 "cat -> /data/backup/inc_${data_time}.xbstream"
+else
+    echo "data do not update!"
+
+fi
+
+```
+
+恢复: 把文件传到本地计算机在进行解压 和还原，或者在远程主机上进行搭建相同环境进行还原
 
 # stream 备份 远程备份 恢复
 
