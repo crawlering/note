@@ -119,4 +119,40 @@ http
 * 此时 可以查看日志文件 可以修改配置文件达到要求
 
 
-## 
+# 优化nginx 性能
+
+/usr/local/nginx/conf/nginx.conf
+* 优化进程个数: worker_processes  1; //通常和cpu个数相同
+  
+
+* 优化绑定到不同cpu上:
+  worker_processes  4;
+  worker_cpu_affinity 0001 0010 0100 1000;
+* nginx事件处理模型优化: linux:epoll
+  events {
+  worker_connections  1024;
+  use epoll;
+  } // 官方说明：在不指定事件处理模型时，nginx默认会自动的选择最佳的事件处理模型服务
+
+* 调整nginx单个进程允许的客户端最大连接数:
+  events {
+    worker_connections  1024;    #一个worker进程的并发 对应内核优化 net.ipv4.ip_conntrack_max 最大tcp连接
+                                 //ipv4.ip_local_port_range 端口范围
+  }
+
+* 配置nginx worker进程最大打开文件数:
+  worker_rlimit_nofile 65535; // 内核优化对应 /etc/security/limits.conf nofile限制 后者file-max
+
+* 高效文件传输: http中: sendfile on
+    sendfile   on;
+    tcp_nopush on; //需要上面的开启才 有用
+    tcp_nodelay on;// 无延时，默认是 等数据满时在发送
+    server_tokens off;
+    server_names_hash_bucket_size 128;
+    server_names_hash_max_size 512;
+    keepalive_timeout  65;
+    client_header_timeout 15s;
+    client_body_timeout 15s;
+    send_timeout 60s;
+
+
