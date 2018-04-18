@@ -207,7 +207,7 @@ redis 常用操作(服务)
   测试：在主上创建新的key，在从上查看
   注意：redis主从和mysql主从不一样，redis主从不用事先同步数据，它会自动同步过去
 
-
+ 
 ## redis cluster 集群
 redis cluster,需要使用predis扩展
 
@@ -319,3 +319,8 @@ done
  cluster replicate node_id//将当前节点设置为指定节点的从
  cluster saveconfig//保存配置文件
 
+
+* 安装predis
+* 配置各个主机的redis服务
+* 安装ruby环境
+* 使用redis-trib.rc 创建redis集群

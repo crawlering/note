@@ -256,7 +256,7 @@ docker build -t build_repo/my_images /tmp/docker_build/
  ## Set the base image to CentOS
  FROM centos
  # File Author / Maintainer
- MAINTAINER aming aming@aminglinux.com
+ MAINTAINER xujb 1193630409@qq.com
  # Install necessary tools
  RUN yum install -y pcre-devel wget net-tools gcc zlib zlib-devel make openssl-devel
  # Install Nginx
@@ -275,7 +275,7 @@ docker build -t build_repo/my_images /tmp/docker_build/
  ```
 
 ### docker compose 部署
-
+ 
  docker compose可以方便我们快捷高效地管理容器的启动、停止、重启等操作，它类似于linux下的shell脚本，基于yaml语法，在该文件里我们可以描述应用的架构，比如用什么镜像、数据卷、网络模式、监听端口等信息。我们可以在一个compose文件中定义一个多容器的应用（比如jumpserver），然后通过该compose来启动这个应用。
   安装compose方法如下
    curl -L https://github.com/docker/compose/releases/download/1.17.0-rc1/docker-compose-Linux-x86_64  > /usr/local/bin/docker-compose
