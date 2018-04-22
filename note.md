@@ -437,3 +437,15 @@ readonly PROMPT_COMMAND
   4(SRV_FORCE_NO_IBUF_MERGE):不执行插入缓冲的合并操作。 
   5(SRV_FORCE_NO_UNDO_LOG_SCAN):不查看重做日志，InnoDB存储引擎会将未提交的事务视为已提交。 
   6(SRV_FORCE_NO_LOG_REDO):不执行前滚的操作。 
+
+# 设置alias传参数 设置rm 变成mv
+
+* vim /etc/bashrc
+
+```bash
+function rmx(){
+    mv -b $1 /data/trash/
+    }
+    alias rm='rmx'
+```
+
