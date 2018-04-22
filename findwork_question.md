@@ -43,6 +43,7 @@
    iptables -t nat -A PREROUTING -p tcp -m tcp --dport 21521 -j DNAT --to-destination 192.168.0.211:1521
    iptables -t nat -A POSTROUTING -s 192.168.0.0/24 -d 192.168.0.211 -p tcp -m tcp --dport 1521 -j SNAT --to-source 192.168.0.132
 
+ iptables -t nat -I PREROUTING -i eth0 -p tcp --dport 9999 -j DNAT --to 47.75.74.16:22
 
 4、memcahce连接通过php中memcache.so模块
 5、6、 stacksalt使用
