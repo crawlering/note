@@ -449,3 +449,11 @@ function rmx(){
     alias rm='rmx'
 ```
 
+# swap 不够
+
+* virtual memory exhausted: Cannot allocate memory #没有设置swap导致 虚拟内存不够
+解决：1、mkdir /opt/images
+      2、dd if=/dev/zero of=/opt/images/swap bs=1k count=2000
+      3、mkswap /opt/images/swap
+      4、swapon /opt/images/swap
+      5、swapoff swap  #使用后可以关掉swap 还可以删除swap rm -rf /opt/images/swap

@@ -64,7 +64,17 @@
 
    使用iptables限制 同一个ip 5S 之内20个连接，在服务器性能之内，超过了就丢包
    再就是禁止ip
-   	
+   tcp_max_syn_backlog 最大连接数增大
+   net.ipv4.tcp_max_syn_backlog = 1024
+
+   net.ipv4.tcp_syncookies = 1
+
+   net.ipv4.tcp_synack_retries = 5
+
+   net.ipv4.tcp_syn_retries = 5
+   http://netsecurity.51cto.com/art/201406/442756.htm
+   减轻DDOS攻击工具 deflate 可以设置检测时间默认1分分钟
+   最大连接数 白名单 禁用ip时间
 
 8、正在使用的文件被删除了怎么恢复。(比如/var/log/messages)
    lsof  | grep /var/log/messages  查处该文件调用进程 和 对应的文件描述符
@@ -76,3 +86,22 @@
    文件恢复: cat /proc/464/fd/4 > /var/log/messages
    然后修改下权限。
 
+
+9、 pv 物理卷 vg 卷组 lv 逻辑卷
+   创建物理卷 卷组 逻辑卷 pvcreate vgcreate lvcreate
+   lvresize -L 2000M /dev/vg1/lv1 扩容逻辑卷
+   resize2fs /dev/vg1/lv1 更新逻辑卷信息
+   缩减需要卸载逻辑卷组
+   扩展卷组:
+   分区	磁盘 fdisk /dev/sdb
+   pvcreate /dev/sdb5
+   vgextend vg1 /dev/sdb5 把物理卷加入卷组 
+   扩容LVM:首先 把磁盘分区，把分区创建到物理卷，然后把物理卷加入到卷组，卷组相当于一个lv逻辑卷池，分配逻辑卷大小
+   通过lvresize
+
+ 10、nfs : nfs-util rpcbind(portmap) 服务端 nfs-util 客户端
+     配置文件 /etc/exports
+     启动服务: start rpcbind 和 nfs
+     showmount -e ip
+     mount -t nfs ip:dir /tmp
+     exports -arv //修改配置文件不用重启服务生效
